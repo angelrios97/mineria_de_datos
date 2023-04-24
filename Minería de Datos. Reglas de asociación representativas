@@ -1,0 +1,245 @@
+\documentclass[10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{multirow}
+\theoremstyle{definition}
+\newtheorem*{ejer}{Ejercicio}
+\newtheorem*{sol}{Solución}
+\usepackage{mathrsfs}
+\usepackage{xcolor}
+\usepackage[left=3.5cm,right=3.5cm,top=2cm,bottom=2.5cm]{geometry}
+\title{\textbf{\Huge Minería de Datos}\\\vspace{0.05cm} \textbf{\Large Reglas de asociación representativas}}
+\author{Ángel Ríos San Nicolás}
+\date{20 de marzo de 2021}
+\newcommand{\F}{F_\tau}
+\newcommand{\FC}{FC_\tau}
+\newcommand{\FG}{FG_\tau}
+\newcommand{\RI}{RI_{\tau,\gamma}}
+\newcommand{\RR}{RR_{\tau,\gamma}}
+\newcommand{\mxgs}{\operatorname{mxgs}_{\tau,\gamma}}
+\newcommand{\mxs}{\operatorname{mxs}_\tau}
+\newcommand{\mns}{\operatorname{mns}_\tau}
+\begin{document}
+\maketitle
+\begin{ejer}Se da el siguiente conjunto de datos $\mathcal{D} = \{abc, abc, abc, abc, ab, ab, ab, ab, ab, bc, a, b, c\}$. Se pide calcular $F_\tau$, $FC_\tau$, $FG_\tau$, $RI_{\tau,\gamma}$ y $RR_{\tau,\gamma}$ para $\tau = 0,25$ y $\gamma = 0,75$ (los dos en valores relativos).
+\end{ejer}
+\begin{sol} El conjunto de items es $\mathcal{I} = \{a,b,c\}$ que tiene $\#\left(2^\mathcal{I}\right) = 2^3 = 8$ subconjuntos posibles.
+\[2^\mathcal{I}=\left\{\emptyset, a, b, c, ab, ac, bc, abc\right\}\]
+
+Calculamos los soportes absolutos y relativos teniendo en cuenta que el número total de datos es $\#\left(\mathcal{D}\right) = 13$.
+    \[\begin{array}{|c|c|c|}
+        \hline \text{Subconjunto } X    & \text{Soporte absoluto } s(X) & \text{Soporte relativo } s_r(X) \\ \hline
+        \emptyset & 13 & 1 \\ \hline
+        a         & 10 & 0.7692307692307693 \\ \hline
+        b         & 11 & 0.8461538461538461 \\ \hline
+        c         & 6  & 0.4615384615384615 \\ \hline
+        ab        & 9  & 0.6923076923076923 \\ \hline
+        ac        & 4  & 0.3076923076923077 \\ \hline
+        bc        & 5  & 0.3846153846153846 \\ \hline
+        abc       & 4  & 0.3076923076923077 \\ \hline
+    \end{array}\]
+Como todos los subconjuntos tienen soporte relativo mayor que $\tau = 0.25$, todos los conjuntos son frecuentes, es decir, $F_\tau =\{X\subsetneq \mathcal{I} : s_r(X)\geq \tau\}= 2^\mathcal{I} = \{\emptyset,a,b,c,ab,ac,bc,abc\}$.
+
+Calculamos los conjuntos cerrados frecuentes $FC_\tau = \{X\in F_\tau : \forall Z\supsetneq X, s(Z)<s(X)\}$.
+
+\begin{itemize}
+    \item $abc$
+
+        Ningún conjunto lo contiene estrictamente, con lo que se cumple la propiedad y $abc\in \FC$.
+    \item $bc$
+        
+        Únicamente $abc\subsetneq bc$ y se cumple $s(abc)=4<5=s(bc)$, con lo que $bc\in\FC$. 
+    \item $ac$
+    
+        Únicamente $abc\subsetneq ac$ y se cumple $s(abc)=4 = s(ac)$, con lo que $ac\notin\FC$.
+    \item $ab$
+
+        Únicamente $abc\subsetneq ab$ y se cumple $s(abc)=4<9=s(ab)$, con lo que $ab\in\FC$.
+    \item $c$
+
+        Tenemos que $\begin{array}{r}
+            abc\supsetneq c  \\
+            ac \supsetneq c  \\
+            bc \supsetneq c  \\
+        \end{array}$ y se cumplen $\left.\begin{array}{r}
+            s(abc) = 4\\
+            s(ac)  = 4\\
+            s(bc)  = 5
+        \end{array}\right\}<6=s(c)$, con lo que $c\in\FC$.
+    \item $b$
+    
+        Tenemos que $\begin{array}{r}
+            abc\supsetneq b  \\
+            ab \supsetneq b  \\
+            bc \supsetneq b  \\
+        \end{array}$ y se cumplen $\left.\begin{array}{r}
+            s(abc) = 4\\
+            s(bc)  = 5\\
+            s(bc)  = 5
+        \end{array}\right\}<11=s(b)$, con lo que $b\in\FC$.
+    \item $a$
+
+        Tenemos que $\begin{array}{r}
+            abc\supsetneq a  \\
+            ab \supsetneq a  \\
+            ac \supsetneq a  \\
+        \end{array}$ y se cumplen $\left.\begin{array}{r}
+            s(abc) = 4\\
+            s(ab)  = 9\\
+            s(ac)  = 4
+        \end{array}\right\}<10=s(a)$, con lo que $a\in\FC$.
+    \item $\emptyset$
+    
+        No hay conjuntos cerrados no vacíos con soporte $13$, con lo que $\emptyset\in\FC$.
+\end{itemize}
+Por lo tanto, el conjunto de cerrados frecuentes es $FC_\tau=\{abc,bc,ab,c,b,a,\emptyset\}$.
+
+Calculamos los generadores minimales frecuentes $\FG=\{X\in\F : \forall Y\subsetneq X, s(Y)>s(X)\}$.
+
+\begin{itemize}
+    \item $\emptyset$
+    
+        Ningún conjunto está contenido estrictamente, con lo que $\emptyset\in\FG$.
+    \item $a$
+    
+        Únicamente $\emptyset\subsetneq a$ y se cumple $s(\emptyset)=13>10=s(a)$, con lo que $a\in\FG$.
+    \item $b$
+    
+        Únicamente $\emptyset\subsetneq b$ y se cumple $s(\emptyset)=13>11=s(b)$, con lo que $b\in\FG$.
+    \item $c$
+    
+        Únicamente $\emptyset\subsetneq c$ y se cumple $s(\emptyset)=13>6=s(c)$, con lo que $c\in\FG$.
+    \item $ab$
+    
+        Tenemos que $\begin{array}{r}
+            \emptyset\subsetneq ab  \\
+            a        \subsetneq ab  \\
+            b        \subsetneq ab
+        \end{array}$ y se cumple $\left.\begin{array}{r}
+            s\left(\emptyset\right) = 13 \\
+            s(a)                    = 10 \\
+            s(b)                    = 11
+        \end{array}\right\}>9=s(ab)$, con lo que $ab\in\FG$.
+    \item $ac$
+    
+        Tenemos que $\begin{array}{r}
+            \emptyset\subsetneq ac  \\
+            a        \subsetneq ac  \\
+            c        \subsetneq ac
+        \end{array}$ y se cumple $\left.\begin{array}{r}
+            s\left(\emptyset\right) = 13 \\
+            s(a)                    = 10 \\
+            s(c)                    = 6
+        \end{array}\right\}>4=s(ac)$, con lo que $ac\in\FG$.
+    \item $bc$
+    
+        Tenemos que $\begin{array}{r}
+            \emptyset\subsetneq bc  \\
+            b        \subsetneq bc  \\
+            c        \subsetneq bc
+        \end{array}$ y se cumple $\left.\begin{array}{r}
+            s\left(\emptyset\right) = 13 \\
+            s(b)                    = 11 \\
+            s(c)                    = 6
+        \end{array}\right\}>5=s(bc)$, con lo que $bc\in\FG$.
+    \item $abc$
+    
+        Consideramos $ac\subsetneq abc$ que cumple $s(ac)=4=s(abc)$, con lo que $abc\notin\FG$.
+\end{itemize}
+Por lo tanto, el conjunto de generadores minimales frecuentes es $\FG = \{\emptyset,a,b,c,ab,ac,bc\}$.
+
+Calculamos el conjunto $\RI = \{Z\in\FC: \gamma\cdot\mxgs(Z)>\mxs(Z)\}$. Para ello, necesitamos calcular primero $\mxs$ para cada cerrado frecuente.
+\begin{align*}
+    \mxs(X) & = \max(\{s(Z) : Z\in\FC, Z\supsetneq X \}\cup\{0\})\\
+\end{align*}
+El conjunto $abc$ no está contenido estrictamente en ningún otro, con lo que $\mxs(abc)=0$. Los conjuntos $ab$ y $bc$ están contenidos estrictamente únicamente en $abc$, así que \[\mxs(ab)=\mxs(bc)=s(abc)=4.\] Respecto a los unipuntuales
+\begin{align*}
+    \mxs(a)   & = \max(\{s(ab),s(ac),s(abc)\}\cup\{0\}) = \max(\{9,4,4,0\})    = 9 \\
+    \mxs(b)   & = \max(\{s(ab),s(bc),s(abc)\}\cup\{0\}) = \max(\{9,5,4,0\})  = 9 \\
+    \mxs(c)   & = \max(\{s(ac),s(bc),s(abc)\}\cup\{0\}) = \max(\{4,5,4,0\})    = 5
+\end{align*}
+El vacío está contenido estrictamente en todos los subconjuntos no vacíos y tenemos
+\[\mxs(\emptyset) = \max(\{s(Z) : Z\in \FC\}=\max(\{10,11,6,9,4,5,4,0\}) = 11.\]
+
+Tenemos que calcular también $\mxgs$ para cada cerrado frecuente. \[\mxgs(X) = \max(\{s(Y): Y\in\FG, Y\subsetneq X, \gamma\cdot s(Y)\leq s(X)\}\cup\{0\})\]
+\begin{itemize}
+    \item $\emptyset$
+    
+        No hay conjuntos estrictamente contenidos en el vacío, con lo que $\mxgs\left(\emptyset\right) = 0$. 
+    \item $c$
+    
+        Únicamente $\emptyset\subsetneq c$, pero $0,75\cdot s(\emptyset) = 0,75\cdot 13=9,75\not\leq 6 = s(c)$, con lo que $\mxgs(c)= 0$.
+    \item $b$
+    
+        Únicamente $\emptyset\subsetneq b$, y se cumple $0,75\cdot s(\emptyset) = 0,75\cdot 13 = 9,75\leq 11 = s(b)$.
+        \[\mxgs(b)=\max(\{s(\emptyset)\}\cup\{0\}) = \max(\{13,0\}) = 13\]
+    \item $a$
+    
+        Únicamente $\emptyset\subsetneq a$, y se cumple $0,75\cdot s(\emptyset) = 0,75\cdot 13 = 9,75\leq 10 = s(a)$.
+        \[\mxgs(a)=\max(\{s(\emptyset)\}\cup\{0\}) = \max(\{13,0\}) = 13\]
+    \item $bc$
+    
+        Se debe cumplir $0,75\cdot s(Y)\leq s(bc) = 5$, es decir $s(Y)\leq\frac{5}{0,75}=6,\overline{6}$ con $Y\subsetneq bc$.
+        \[\mxgs(bc)=\max(\{s(c)\}\cup\{0\})=\max(\{6,0\}) = 6\]
+    \item $ab$
+    
+        Se debe cumplir $0,75\cdot s(Y)\leq s(ab) = 9$, es decir $s(Y)\leq\frac{9}{0,75}=12$ con $Y\subsetneq ab$.
+        \[\mxgs(ab)=\max(\{s(a),s(b)\}\cup\{0\})=\max(\{10,11,0\})=11\]
+    \item $abc$
+    
+        Se debe cumplir $0,75\cdot s(Y)\leq s(abc) = 4$, es decir $s(Y)\leq\frac{4}{0,75}=5,\overline{3}$ con $Y\subsetneq abc$.
+        \[\mxgs(abc)=\max(\{s(ac),s(bc)\}\cup\{0\})=\max(\{5,4,0\})=5\]
+\end{itemize}
+\[\begin{array}{|c|c|c|c|}
+    \hline \FC & \mxs & \gamma\cdot\mxgs & \mxgs \\ \hline
+    abc        & 0    & 3,75             & 5 \\ \hline
+    ab         & 4    & 8,25             & 11 \\ \hline
+    bc         & 4    & 4,5              & 6 \\ \hline
+    a          & 9    & 9,75             & 13 \\ \hline
+    b          & 5    & 9,75             & 13 \\ \hline
+    c          & 5    & 0                & 0 \\ \hline
+    \emptyset  & 11   & 0                & 0 \\ \hline
+\end{array}\]
+Por lo tanto, $\RI = \{abc, ab, bc, a, b\}$.
+\newpage
+Calculamos el conjunto de reglas representativas
+\[\RR = \{X\rightarrow Z\setminus X : Z\in\RI, X\subsetneq Z,\mxs(Z)<\gamma\cdot s(X)\leq s(Z)<\gamma\cdot\mns(X)\}.\]
+
+Para ello calculamos primero $\mns$ para cada generador minimal frecuente.
+\[\mns(X)=\min(\{s(Y) : Y\in\FG, Y\subsetneq X\}\cup\{\infty\})\]
+
+No hay ningún conjunto contenido estrictamente en el vacío con lo que $\mns(\emptyset)=\infty$. El vacío es el único conjunto contenido estrictamente en $a,b,c$, con lo que \[\mns(a)=\mns(b)=\mns(c)=\min(\{s(\emptyset\}\cup\{\infty\}) = \min(\{13,\infty\})=13.\]
+Para los generadores minimales frecuentes de dos elementos
+\begin{align*}
+    \mns(ab) & = \min(\{s(\emptyset),s(a),s(b)\}\cup\{\infty\})=\min(\{13,10,11,\infty\}) = 10\\
+    \mns(ac) & = \min(\{s(\emptyset),s(a),s(c)\}\cup\{\infty\})=\min(\{13,10,6,\infty\}) = 6\\
+    \mns(bc) & = \min(\{s(\emptyset),s(b),s(c)\}\cup\{\infty\}=\min(\{13,11,6,\infty\}) = 6
+\end{align*}
+
+Por lo tanto, tenemos
+\[\begin{array}{|c|c|c|l|c|l|c|}
+    \hline Z\in\RI & X\subsetneq Z & \mxs(Z) &\multicolumn{1}{c|}{\gamma\cdot s(X)} & s(Z) & \multicolumn{1}{c|}{\gamma\cdot\mns(X)} & \RR\\ \hline
+    a & \emptyset & 5 & 0,75\cdot 13 =9,75 & 11 & 0,75\cdot\infty = \infty & \emptyset\rightarrow a \\\hline
+    b & \emptyset & 9 & 0,75\cdot 13 =9,75 & 10 & 0,75\cdot\infty = \infty & \emptyset\rightarrow b\\\hline
+    \multirow{3}{*}{$ab$} & \emptyset & & 0,75\cdot 13 =9,75 & & 0,75\cdot\infty = \infty & \\
+    & a & 4 & 0,75\cdot 10 = 7,5 & 9 & 0,75\cdot 13 = 9,75 & a\rightarrow b\\
+    & b & & 0,75\cdot 11 = 8,25 &  & 0,75\cdot 13 = 9,75 & b\rightarrow a\\\hline
+    \multirow{3}{*}{$bc$} & \emptyset & & 0,75\cdot 13 = 9,75 & & 0,75\cdot \infty = \infty &\\
+    & b & 4 & 0,75\cdot 11 = 8,25 & 5 & 0,75\cdot 13 = 9,75 &\\
+    & c &  & 0,75\cdot 6 = 4,5 & & 0,75\cdot 13=9,75 & c\rightarrow b\\ \hline
+    \multirow{7}{*}{$abc$}& \emptyset & & 0,75\cdot 13 =9,75 & & 0,75\cdot\infty=\infty & \\ 
+    & a & & 0,75\cdot 10 =7,5 & & 0,75\cdot 13=9,75 & \\
+    & b & & 0,75\cdot 11 =8,25 & & 0,75\cdot 13=9,75 & \\
+    & c & 0 & 0,75\cdot 6 =4,5 & 4 & 0,75\cdot 13=9,75 & \\
+    & ab & & 0,75\cdot 9 =6,75 & & 0,75\cdot 10 = 7,5 & \\
+    & ac & & 0,75\cdot 4 =3 & & 0,75\cdot 6 = 4,5 & ac\rightarrow b\\
+    & bc & & 0,75\cdot 5 =3,75 & & 0,75\cdot 6 = 4,5 & bc\rightarrow a\\ \hline
+\end{array}\]
+
+Las reglas de asociación representativas son
+\[\RR = \{\emptyset\rightarrow a,\emptyset\rightarrow b,a\rightarrow b,b\rightarrow a,c\rightarrow b,ac\rightarrow b, bc\rightarrow a\}.\]
+\end{sol}
+\end{document}

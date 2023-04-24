@@ -1,0 +1,161 @@
+\documentclass[10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage{graphicx}
+\usepackage{enumerate}
+\usepackage{ragged2e}
+\usepackage{listings}
+\usepackage{multirow}
+\usepackage{breqn}
+\usepackage[spanish,onelanguage]{algorithm2e}
+%\setlength{\parindent}{0em}
+\usepackage[left=3.5cm,right=3.5cm,top=2cm,bottom=2.5cm]{geometry}
+\usepackage{tikz}
+\usepackage{tikz-cd}
+\newtheorem{ejer}{Ejercicio}
+\setcounter{ejer}{1}
+\theoremstyle{definition}
+\newtheorem*{sol}{Solución}
+\title{\textbf{\Huge Minería de Datos}\\\vspace{0.05cm} \textbf{\Large Práctica 1. Práctica introductoria a Weka}}
+\author{Ángel Ríos San Nicolás}
+\date{19 de marzo de 2021}
+\renewcommand{\refname}{Bibliografía}
+\newcommand{\TP}{\operatorname{TP}}
+\begin{document}
+\maketitle
+\begin{enumerate}
+    \item Responde las siguientes cuestiones:\begin{enumerate}[a.]
+        \item Abre el fichero de datos ``credit-g.arff''.
+        
+        
+        \item ¿Cuántos atributos tiene? ¿De qué tipo son cada uno de ellos?
+        
+        Tiene los siguientes 21 atributos:
+        \begin{center}
+        \begin{tabular}{ccc}
+        Número & Nombre & Tipo \\
+        1 & \textit{checking\_status} & Nominal\\
+        2 & \textit{duration} & Numérico \\
+        3 & \textit{credit\_history} & Nominal\\
+        4 & \textit{purpose} & Nominal\\
+        5 & \textit{credit\_amount} & Numérico \\
+        6 & \textit{savings\_status} & Nominal\\
+        7 & \textit{employment} & Nominal\\
+        8 & \textit{installment\_commitment} & Numérico\\
+        9 & \textit{personal\_status} & Nominal\\
+        10 & \textit{other\_parties} & Nominal\\
+        11 & \textit{residence\_since} & Numérico\\
+        12 & \textit{property\_magnitude} & Nominal\\
+        13 & \textit{age} & Numérico\\
+        14 & \textit{other\_payment\_plans} & Nominal\\
+        15 & \textit{housing} & Nominal\\
+        16 & \textit{existing\_credits} & Numérico\\
+        17 & \textit{job} & Nominal\\
+        18 & \textit{num\_dependents} & Numérico\\
+        19 & \textit{own\_telephone} & Nominal\\
+        20 & \textit{foreign\_worker} & Nominal\\
+        21 & \textit{class} & Nominal\\
+        \end{tabular}
+        \end{center}
+        \item ¿Cuántas instancias?
+        
+        El fichero de datos tiene $1000$ instancias.
+        
+        \item ¿Existen atributos con valores perdidos (missing)? ¿Cuáles?
+        
+        No existen atributos con valores perdidos.
+        
+        \item ¿Cuáles son los valores máximo, mínimo y medio del campo ``age''? ¿Qué distribución siguen? ¿Cuántos valores de edad diferentes hay? ¿Cuántos de esos valores no se repiten? ¿Y en cuánto al campo ``credit\_amount''?
+        \begin{itemize}
+            \item Campo \textit{age}.
+            
+            Mínimo: $19$
+            
+            Máximo: $75$
+            
+            Media: $35.546$
+            
+            La distribución de los datos respecto al atributo \textit{age} tiene una clara asimetría positiva, es decir, la densidad de las edades crece rápidamente con la edad y después, en general, decrece lentamente de manera que la moda es menor que la mediana que a su vez es menor que la media.
+            
+            Hay $53$ valores diferentes de los que solo uno no se repite.
+            \item Campo \textit{credit\_amount}.
+            
+            Mínimo: $250$
+            
+            Máximo: $18424$
+            
+            Media: $3271.258$
+            
+            La distribución de los datos respecto al atributo \textit{credit\_amount} se asemeja a la anterior, tiene una asimetría positiva mucho más pronunciada.
+            
+            Hay $921$ valores distintos de los que $847$ son únicos, no se repiten. 
+        \end{itemize}
+        
+        \item ¿Cuál es el valor más frecuente de la clase y en cuánta proporción?
+        
+        El valor más frecuente de la clase es \textit{good} con una proporción de $\frac{700}{1000}=0.7$, es decir, el $70\%$.
+    \end{enumerate}
+    \item Realiza las siguientes tareas de prepocesado:\begin{enumerate}[a.]
+        \item Abre el fichero de datos ``credit-g.arff''.
+        \item Cambia el nombre del atributo de clase de ``Class'' a ``credit''.
+        \item Crea una copia del atributo ``age''. Renombrala a ``ageDisc5'', y discretiza sus valores en 6 rangos diferentes. Observa la distribución obtenida, ¿te parece bien esta discretización? Realiza nuevas copias del atributo ``age'', prueba a discretizar con diferente número de ``bins'' y compara los resultados.
+        
+        La discretización con solo 6 rangos diferentes no es adecuada porque no refleja bien la distribución por edades. Hay demasiadas instancias en cada rango con lo que las frecuencias son muy altas. No se aprecia bien, por ejemplo, la asimetría.
+        
+        Con $10$ y $20$ rangos diferentes se aprecia mucho mejor la distribución de los datos. Se aprecia la asimetría positiva. Con $20$ rangos podemos observar tendencias que no observamos con $10$, por ejemplo, que la distribución no decrece a partir de la moda porque en $(33,35.8]$ hay $72$ instancias y en $(35.8, 38.6]$ hay $92$.  
+        
+        \item Repite la operación, usando PKIDiscretize con la opción ``useEqualFrecuency'' activada. ¿Qué diferencias ves con respecto a lo obtenido en la pregunta anterior?
+        
+        Independientemente del número de ``bins'' escogido, PKIDiscretize siempre discretiza en $31$ rangos porque, según su descripción, fuerza a que el número de ``bins" sea la raíz cuadrada del número de valores del atributo y $\sqrt{1000}=31.622776601683793...$, con lo que se toman $31$. 
+        
+        Observamos que no es cierto que los rangos tengan el mismo tamaño. Los primeros rangos separan edades con diferencias de un año, con lo que prácticamente tenemos la frecuencia de cada edad. Sin embargo, los últimos rangos engloban más valores del atributo, por ejemplo, el rango $(60.5,64.5]$ que combina los valores $61,62,63,64$. Esto provoca que haya frecuencias más altas por el hecho de permitir más valores, lo que puede llevar a malinterpretar los datos si no se tiene en cuenta.
+        
+        \item Combina los valores ``blank'' y ``stores'' del atributo ``other\_payment\_plans'' en uno sólo, de forma que sólo tenga dos valores.
+        \item Elimina los atributos ``employment'' y ``purpose''.
+        \item Normaliza los atributos numéricos en una escala de 0 a 1.
+        \item Guarda el fichero .arff con todos los cambios.
+        \item Abre el fichero de datos ``breast-cancer.arff''.
+        \item Observa las estadísticas del atributo ``node-caps''. Busca una función que sirva para reemplazar valores perdidos. Aplícala sobre este atributo. ¿Qué ha sucedido?
+        
+        Las estadísticas del atributo \textit{node-caps} antes de aplicar la función son:
+        
+        \begin{center}
+        Perdidos: $8$ ($3\%$)\qquad Distintos: $2$\qquad
+        Únicos: $0$ ($0\%$)
+        
+        \begin{tabular}{|c|c|c|c|}
+        \hline    n.º & Valor & Cantidad & Peso \\
+        \hline    $1$ & \textit{yes} & 56 & 56.0\\
+        \hline    $2$ & \textit{no} & 222 & 222.0\\\hline
+        \end{tabular}
+        \end{center}
+        
+        Las estadísticas del atributo \textit{node-caps} al aplicar la función son:
+        
+        \begin{center}
+        Perdidos: $0$ ($0\%$)\qquad Distintos: $2$\qquad
+        Únicos: $0$ ($0\%$)
+        
+        \begin{tabular}{|c|c|c|c|}
+        \hline n.º & Valor & Cantidad & Peso \\
+        \hline    $1$ & \textit{yes} & 56 & 56.0\\
+        \hline    $2$ & \textit{no} & 230 & 230.0\\\hline
+        \end{tabular}
+        \end{center}
+        
+        Observamos que los valores perdidos se han reemplazado por el valor \textit{no}. Como explica la propia descripción de la función, en los tipos de datos nominales, reemplaza los valores perdidos por la moda, en este caso, por \textit{no}.
+        
+        \item Prueba a eliminar, con la función adecuada, todos los atributos de tipo nominal. ¿Cuáles permanecen?
+        
+        Aplicamos la función \textit{RemoveType} para la que seleccionamos ``Delete nominal attributes'' de la opción \textit{attributeType}. Como todos los atributos eran nominales, solo permanece el atributo \textit{Class} que, aunque es nominal, es especial por estar marcado como clase y sobrevive al proceso.
+        \item Abre el fichero ``ionosphere.arff''
+        \item Busca una función que permita eliminar a aquellos atributos ``Useless'', y prueba a eliminar todos los atributos que apenas, usando una sensibilidad de 99.0. ¿Se elimina alguno?
+        
+        Aplicamos la función \textit{RemoveUseless} con la opción \textit{maximumVariancePercentageAllowed} a $99.0$ y se elimina el atributo \textit{a02}.
+    \end{enumerate}
+\end{enumerate}
+\end{document}

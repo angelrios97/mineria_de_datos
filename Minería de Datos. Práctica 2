@@ -1,0 +1,152 @@
+\documentclass[10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage{graphicx}
+\usepackage{enumerate}
+\usepackage{ragged2e}
+\usepackage{listings}
+\usepackage{multirow}
+\usepackage{breqn}
+\usepackage[spanish,onelanguage]{algorithm2e}
+%\setlength{\parindent}{0em}
+\usepackage[left=3.5cm,right=3.5cm,top=2cm,bottom=2.5cm]{geometry}
+\usepackage{tikz}
+\usepackage{tikz-cd}
+\newtheorem{ejer}{Ejercicio}
+\setcounter{ejer}{1}
+\theoremstyle{definition}
+\newtheorem*{sol}{Solución}
+\title{\textbf{\Huge Minería de Datos}\\\vspace{0.05cm} \textbf{\Large Práctica 2. Evaluación de clasificadores}}
+\author{Ángel Ríos San Nicolás}
+\date{19 de marzo de 2021}
+\renewcommand{\refname}{Bibliografía}
+\newcommand{\TP}{\operatorname{TP}}
+\newcommand{\FP}{\operatorname{FP}}
+\newcommand{\FN}{\operatorname{FN}}
+\newcommand{\TN}{\operatorname{TN}}
+\newcommand{\MCC}{\operatorname{MCC}}
+\begin{document}
+\maketitle
+\begin{enumerate}
+    \item Buscar información sobre las siguientes medidas de evauación de clasificadores (las $3$ primeras aparecen en Weka):
+    \begin{itemize}
+        \item ROC area
+        
+        Es una medida de la calidad de un clasificador binario. Se obtiene calculando el área bajo una curva determinada por los falsos positivos frente a los verdaderos positivos. En algunos clasificadores como redes bayesianas o redes neuronales, la respuesta no es una clasificación de $0$ o $1$ si no una medida de probabilidad o distancia $x\in [0,1]$ entre las clases de manera que la instancia $x$ se clasifica como $0$ o $1$ dependiendo de el corte que se establezca. La medida del área bajo la curva ROC mide la bondad del clasificador teniendo en cuenta los falsos positivos y los positivos acertados relativos a todos los posibles cortes y se puede interpretar como la probabilidad de que a una instancia positiva se le asigne un valor más alto que a una negativa. Otra interpretación posible de la curva ROC se obtiene representando la sensibilidad (Recall) frente a la especificidad.
+        
+        Veamos un ejemplo del cálculo de esta medida. Supongamos que tenemos la siguiente clasificación:
+        
+        \begin{center}
+            \begin{tabular}{|c|c|}
+                \hline Real & Clasificador \\
+                \hline 0 & 0.2\\
+                \hline 0 & 0.4\\
+                \hline 1 & 0.5\\
+                \hline 0 & 0.55\\
+                \hline 1 & 0.6\\
+                \hline 
+            \end{tabular}
+        \end{center}
+        
+        Si denotamos FP a los falsos positivos y TP a los verdaderos positivos tenemos, tomando sucesivos cortes, lo siguiente:
+        
+        \begin{center}
+            \begin{tabular}{|c|c|c|}
+                \hline Corte & FP & TP\\
+                \hline $0.1$ &  3 & 2\\
+                \hline $0.25$ & 2 & 2\\
+                \hline $0.45$ & 1 & 2\\
+                \hline $0.525$ & 1 & 1\\
+                \hline $0.555$ & 0 & 1\\ \hline
+            \end{tabular}
+        \end{center}
+        
+        La curva ROC es la determinada por los segmentos que unen en orden los puntos \[[(3,2),(2,2),(1,2),(1,1),(0,1)].\]
+        Representamos la curva.
+        \begin{center}
+    \begin{tikzpicture}
+    \draw[very thin,gray] (0,3) grid (4,0);
+    \draw[->,thick] (0,0)--(4,0) node[below] {FP};
+    \draw[->,thick] (0,0)--(0,3) node[left] {TP};
+    \foreach \x in {0,...,3}\draw (\x,0) node[below] {$\x$};
+    \foreach \x in {1,...,2}\draw (0,\x) node[left] {$\x$};
+    \filldraw (0,1) circle (2pt)
+            (1,1) circle (2pt)
+            (1,2) circle (2pt)
+            (2,2) circle (2pt)
+            (3,2) circle (2pt);
+    \draw[fill=cyan,very nearly transparent,thick,cyan] (0,0)--(0,1)--(1,1)--(1,2)--(2,2)--(3,2)--(3,0)--cycle;
+    \draw[thick,cyan]
+    (0,1)--(1,1)--(1,2)--(2,2)--(3,2);
+    \end{tikzpicture}\end{center}
+    
+    El área bajo la curva ROC es $5$.
+        \item PRC area
+        
+        En lugar de representar los verdaderos positivos frente a los falsos positivos (o la sensibilidad frente a la especifidad) como hace la curva ROC, la curva PRC representa la precisión (Precision) frente a la sensibilidad (Recall) relativos a todos los posibles cortes para la clasificación. La medida PRC area es el área bajo la curva PRC.
+        
+        
+        \item Mathhews correlation coefficient (MCC)
+        
+        El coeficiente de correlación de Matthews está dado por la fórmula
+
+        \[\MCC= \frac{\TP\cdot \TN - \FP\cdot \FN}{\sqrt{(\TP+\FP)(\TP+\FN)(\TN+\FP)(\TN+\FN)}}.\]
+        
+        Es un coeficiente de correlación entre la verdadera clasificación y la dada por el modelo. El valor de $\MCC$ esta entre $-1$ y $1$. Cuanto mayor sea el valor, mejor será la clasificación de manera que si $\MCC=1$, la clasificación es perfecta, si $\MCC=0$ no se diferencia de una clasificación aleatoria y si $\MCC=-1$, la clasificación es totalmente contraria a la verdadera. 
+        
+        \item Informedness or Bookmaker Informedness
+        
+        La medida Informednsess o Bookmaker Informedness está dada por la fórmula
+        
+        \[\operatorname{BM} = \operatorname{Recall}+\operatorname{Specificity}-1.\]
+        
+        Esta medida es un estimador de que se tome una decisión informada. El valor de $\operatorname{BM}$ está entre $-1$ y $1$. Si es $0$, entonces el clasificador asigna la misma proporción de positivos a grupos positivos y negativos con lo que es inútil. Un valor de $1$ indica que no hay falsos negativos ni falsos positivos con lo que el clasificador no se equivoca, es decir, el sobreajuste total. En general, cuanto mayor es $\operatorname{BM}$, menores son las proporciones de falsos positivos y negativos y mejor el clasificador. Si $\operatorname{BM}$ es negativo, es porque el clasificador está asignando las clases de manera opuesta a como debería y entonces podemos cambiar todas las clasificaciones de manera que sea positivo y tenemos una clasificación mejor.
+        
+        \item Markedness
+        
+        La medida Markedness está dada por la fórmula
+        \[\operatorname{MK} = \operatorname{PPV}+\operatorname{NPV}-1.\]
+        
+        Esta medida cuantifica de manera conjunta la fiabilidad de las predicciones positivas y negativas del modelo. El valor de $\operatorname{MK}$ está entre $-1$  y $1$. Si $\operatorname{MK}=1$ entonces todas las clasificaciones positivas eran realmente positivas y todas las negativas eran realmente negativas. Si $\operatorname{MK}=-1$ es porque todas las clasificaciones positivas son realmente negativas y las clasificaciones negativas son realmente positivas, es decir, todas las clasificaciones son incorrectas. Como antes, si el valor es negativo, podemos cambiar todas las clasificaciones para que sea positivo y la clasificación será mejor cuanto mayor sea $\operatorname{MK}$.
+        
+        \item $G$-measure
+        
+        La $G$-measure es la media geométrica de la sensibilidad (Recall) y la precisión (Precision), es decir,
+        
+        \[G  = \sqrt{\text{Recall}\cdot \text{Precision}}.\]
+        
+        Es una medida promedio de ambas medidas.
+    
+        
+    
+    \end{itemize}
+    \item Buscar información sobre las siguientes técnicas de validación:
+    \begin{itemize}
+        \item Stratified cross-validation
+        
+        La validación cruzada estratificada es una técnica de validación cruzada modificada. La diferencia es que en cada iteración, la partición del subconjunto de entrenamiento no se hace de manera totalmente aleatoria sino estratificada, es decir, de manera que cada parte sea estadísticamente representativa del total del conjunto. Esto significa que tiene aproximadamente la misma distribución de la clase (supervisión), misma media, varianza, etc. La validación cruzada estratificada tiene menor sesgo y varianza que la validación cruzada normal.
+        
+        \item Bootstrap
+        
+        La técnica Bootstrap es una técnica de validación mediante muestreo con reemplazamiento. El procedimiento es el siguiente:
+        \begin{enumerate}[1.]
+            \item Extraemos con reemplazamiento una muestra del mismo tamaño que el conjunto de datos.
+            \item Ajustamos el modelo mediante el algoritmo de clasificación.
+            \item Calculamos el error de validación en los datos que no se hayan extraído en el muestreo.
+            \item Repetimos el proceso un número fijo de veces y calculamos la media de los errores de validación.
+            \item Al finalizar las repeticiones, ajustamos el modelo final utilizando todas las observaciones de entrenamiento anteriores.
+        \end{enumerate}
+        
+        Esta técnica es útil cuando se quiere comparar modelos más que estimar de manera precisa ya que tienen menor varianza.
+        \item Leave-one-out
+        
+        La técnica ```Leave-one-out cross-validation'' consiste en considerar como conjunto de entrenamiento el total de los datos menos uno que se utiliza para validar el ajuste. Este procedimiento se repite para todos los datos, es decir, se selecciona un dato, se ajusta con el resto, se valida en el dato seleccionado y se calcula el error de validación. Cuando termina el proceso, se estima el error del clasificador promediando todos los errores calculados.
+        
+        Este procedimiento reduce la variabilidad porque se emplean todos los datos como entrenamiento y validación y no hay ningún proceso aleatorio. Sin embargo, requiere un elevado coste computacional porque es necesario aplicar el algoritmo de clasificación tantas veces como el número de datos. 
+    \end{itemize}
+\end{enumerate}
+\end{document}

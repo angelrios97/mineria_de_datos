@@ -1,0 +1,358 @@
+\documentclass[10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{ragged2e}
+\usepackage{listings}
+\usepackage{multirow}
+\usepackage{breqn}
+\usepackage[spanish,onelanguage]{algorithm2e}
+%\setlength{\parindent}{0em}
+\usepackage[left=3.5cm,right=3.5cm,top=2cm,bottom=2.5cm]{geometry}
+\usepackage{tikz}
+\usepackage{tikz-cd}
+\newtheorem{ejer}{Ejercicio}
+\setcounter{ejer}{1}
+\theoremstyle{definition}
+\newtheorem*{sol}{Solución}
+\title{\textbf{\Huge Minería de Datos}\\\vspace{0.05cm} \textbf{\Large Práctica 4. Clasificación y selección de atributos}}
+\author{Ángel Ríos San Nicolás}
+\date{19 de marzo de 2021}
+\renewcommand{\refname}{Bibliografía}
+\newcommand{\TP}{\operatorname{TP}}
+\begin{document}
+\maketitle
+\begin{enumerate}
+    \item Carga el fichero de datos “credit\_g.arff” en Weka.
+    \item Estudia los distintos atributos, su significado y su distribución. ¿Hay algún atributo que podría ser considerado “poco relevante”? (por ejemplo, porque la mayoría de las filas caigan en el mismo valor).
+    
+    \begin{tabular}{rl}
+     \textit{checking\_status} & Existencia y estado actual de la cuenta corriente \\ \textit{duration}  & Duración del crédito en meses \\  \textit{credit\_history} & Historial de créditos: sin créditos previos, impagados, etc.\\   \textit{purpose}  & Propósito: coche, equipamiento, reformas, formación, etc.\\
+     \textit{credit\_amount} & Cuantía del crédito\\ 
+     \textit{saving\_status} & Cuantía en cuentas de ahorro  \\
+     \textit{employment} & Antigüedad en el trabajo: desempleado, de 1 a 4 años, etc. \\
+     \textit{installment\_commitment} & Tasa de pago a plazos en porcentaje respecto al ingreso \\
+     \textit{personal\_status} & Género y estado civil\\
+     \textit{other\_parties}  & Existencia de terceros: otros deudores, solicitantes, etc. \\
+     \textit{residence\_since} & Antigüedad en la residencia actual\\ \textit{property\_magnitude}   & Propiedades: Inmobiliaria, hipoteca, vehículos, etc. \\
+     \textit{age}    & Edad \\
+     \textit{other\_payment\_plans}  & Otros modos de pago: Banco, bienes o ninguno  \\
+     \textit{housing}  & Vivienda de alquier, propia o gratuita \\
+     \textit{existing\_credits} & Número de creditos existentes con el banco \\
+     \textit{job} & Profesión: cualificado, no cualificado, autónomo, etc.\\
+     \textit{num\_dependents} & Número de dependientes del crédito\\
+     \textit{own\_telephone} & Propietario o no de teléfono propio\\
+     \textit{foreign\_worker} & Trabajador extranjero o no\\
+     \textit{class} & Calidad del cliente respecto a la concesión de un crédito\\
+    \end{tabular}
+    
+    
+    La mayoría de las instancias tienen el mismo valor en los atributos \textit{other-parties} y \textit{foreign worker} por lo que podríamos considerarlos poco relevantes. Podríamos también considerar poco relevante si el cliente tiene o no teléfono propio, es decir, el atributo \textit{own\_telephone}.
+    \item Realiza las siguientes tareas de clasificación con 10-cross-validation:\begin{enumerate}[label = \alph*.]
+        \item Usando J48
+        \item Usando NaïveBayes
+        \item Usando Redes Bayesianas con TAN
+        \item Usando 5-NN (Vecinos cercanos con $k=5$.)
+    \end{enumerate}
+    \item Una vez obtenidos los diferentes modelos del punto 3, responde:\begin{enumerate}[label = \alph*.]
+    \item ¿Qué clasificador obtiene mejores resultados? ¿Cuál tiene un peor rendimiento?
+        \begin{itemize}
+            \item J48
+            \begin{center}
+            \begin{tabular}{lcr}
+                {Accuracy: 70.5\%} &
+                \begin{tabular}{|c|c|}
+                \hline \textit{good} & \textit{bad}  \\
+                \hline 588 & 112\\ 
+                \hline 183 & 117\\ \hline
+                \end{tabular} & \begin{tabular}{|c|c|c|}
+                \hline Clase & Recall & Precision \\
+                \hline \textit{good} & 0.840 & 0.763\\
+            \hline \textit{bad} & 0.390& 0.511\\ \hline
+            \end{tabular}\end{tabular}\end{center}
+            \item NaïveBayes
+            
+            \begin{center}
+            \begin{tabular}{lcr}
+                {Accuracy: 75.4\%} &
+                \begin{tabular}{|c|c|}
+                \hline \textit{good} & \textit{bad}  \\
+                \hline 605 & 95\\ 
+                \hline 151 & 149\\ \hline
+                \end{tabular} & \begin{tabular}{|c|c|c|}
+                \hline Clase & Recall & Precision \\
+                \hline \textit{good} & 0.864 & 0.800 \\
+            \hline \textit{bad} & 0.497& 0.611\\ \hline
+            \end{tabular}\end{tabular}\end{center}
+            
+            \item Redes Bayesianas con TAN
+            
+            \begin{center}
+            \begin{tabular}{lcr}
+                {Accuracy: 74.5\%} &
+                \begin{tabular}{|c|c|}
+                \hline \textit{good} & \textit{bad}  \\
+                \hline 599 & 101\\ 
+                \hline 154 & 146\\ \hline
+                \end{tabular} & \begin{tabular}{|c|c|c|}
+                \hline Clase & Recall & Precision \\
+                \hline \textit{good} & 0.856 & 0.795 \\
+            \hline \textit{bad} & 0.487 & 0.591\\ \hline
+            \end{tabular}\end{tabular}\end{center}
+            
+            \item 5-NN
+            
+            \begin{center}
+            \begin{tabular}{lcr}
+                {Accuracy: 74.2\%} &
+                \begin{tabular}{|c|c|}
+                \hline \textit{good} & \textit{bad}  \\
+                \hline 624 & 76\\ 
+                \hline 182 & 118\\ \hline
+                \end{tabular} & \begin{tabular}{|c|c|c|c|}
+                \hline Clase & Recall & Precision \\
+                \hline \textit{good} & 0.891 & 0.774 \\
+            \hline \textit{bad} & 0.393 & 0.608\\ \hline
+            \end{tabular}\end{tabular}\end{center}
+        \end{itemize}
+        
+        De los clasificadores anteriores el que obtiene mejores resultados es NaïveBayes, es el método con el mayor Accuracy de los cuatro. Aunque tiene menor Recall que 5-NN para la clase \textit{good}, su Precision es mayor en ambas clases. El clasificador que obtiene peor rendimiento es J48 porque sus medidas de evaluación son todas menores que las del resto de métodos.
+        \item ¿Qué diferencia hay entre el modelo de clasificación obtenido en el punto 3.b y el obtenido en el 3.c?
+        
+        El modelo NaïveBayes es mejor que el método del árbol generador de peso máximo, clasifica mejor para los dos valores del atributo como se ve en la matriz de confusión y todas las medidas de evaluación son mayores en consecuencia.
+    \end{enumerate}
+    \item Utilizando  la  técnica  de  selección  de  atributos  CfsSubsetEval  y  10-cross-validation, elimina los atributos que hayan sido seleccionados menos de un 70\% de las veces. Repite el  punto  3  usando  solamente  los  atributos  seleccionados  para  la  clasificación.  ¿Qué modelos mejoran y cuáles empeoran?
+     
+     \begin{itemize}
+            \item J48
+            \begin{center}
+            \begin{tabular}{lcr}
+                {Accuracy: 70.5\%} &
+                \begin{tabular}{|c|c|}
+                \hline \textit{good} & \textit{bad}  \\
+                \hline 615 & 85\\ 
+                \hline 210 & 90\\ \hline
+                \end{tabular} & \begin{tabular}{|c|c|c|}
+                \hline Clase & Recall & Precision \\
+                \hline \textit{good} & 0.879 & 0.745 \\
+            \hline \textit{bad} & 0.300 & 0.514\\ \hline
+            \end{tabular}\end{tabular}\end{center}
+            \item NaïveBayes
+            
+            \begin{center}
+            \begin{tabular}{lcr}
+                {Accuracy: 74.4\%} &
+                \begin{tabular}{|c|c|}
+                \hline \textit{good} & \textit{bad}  \\
+                \hline 639 & 61\\ 
+                \hline 195 & 105\\ \hline
+                \end{tabular} & \begin{tabular}{|c|c|c|}
+                \hline Clase & Recall & Precision \\
+                \hline \textit{good} & 0.913 & 0.766 \\
+            \hline \textit{bad} & 0.350 & 0.633\\ \hline
+            \end{tabular}\end{tabular}\end{center}
+            
+            \item Redes Bayesianas con TAN
+            
+            \begin{center}
+            \begin{tabular}{lcr}
+                {Accuracy: 72.5\%} &
+                \begin{tabular}{|c|c|}
+                \hline \textit{good} & \textit{bad}  \\
+                \hline 631 & 69\\ 
+                \hline 206 & 94\\ \hline
+                \end{tabular} & \begin{tabular}{|c|c|c|}
+                \hline Clase & Recall & Precision \\
+                \hline \textit{good} & 0.901 & 0.754 \\
+            \hline \textit{bad} & 0.313 & 0.577\\ \hline
+            \end{tabular}\end{tabular}\end{center}
+            
+            \item 5-NN
+            
+            \begin{center}
+            \begin{tabular}{lcr}
+               {Accuracy: 71.7\%} &
+                \begin{tabular}{|c|c|}
+                \hline \textit{good} & \textit{bad}  \\
+                \hline 600 & 100\\ 
+                \hline 183 & 117\\ \hline
+                \end{tabular} & \begin{tabular}{|c|c|c|}
+                \hline Clase & Recall & Precision \\
+                \hline \textit{good} & 0.857 & 0.766 \\
+            \hline \textit{bad} & 0.390 & 0.539\\ \hline
+            \end{tabular}\end{tabular}\end{center}
+        \end{itemize}
+        
+    El método J48 se comporta de manera similar, mantiene el mismo Accuracy, mejora clasificando la clase \textit{good} tanto como empeora clasificando \textit{bad}. Sabemos, como recoge la documentación del archivo de datos, que es más grave clasificar un cliente \textit{bad} como \textit{good} que lo contrario, con lo que podemos decir que el clasificador es algo peor.
+    
+   Los métodos de NaïveBayes y de redes bayesianas con TAN tienen peor Accuracy, mejoran clasificando \textit{good}, pero se equivocan mucho más clasificando \textit{bad}, con lo que también empeora.
+    
+    El método 5-NN empeora, tiene peor Accuracy y, al contrario que los anteriores, se equivoca más en la clasificación de ambas clases.
+     
+    \item Repite  el  punto  5,  pero  usando  ClassifierSubSetEval  como  método  de  selección  de atributos, y  usando como clasificador  base  el clasificador  que  luego  se  va  a  usar  para generar  el  modelo  de  predicción.  Prueba  en  cada  caso  eliminando  los  atributos  que hayan sido seleccionado menos de un 70\% o un 50\%. ¿En qué casos se obtiene mejor o peor resultado? ¿Mejoran con respecto a los obtenidos en el apartado 5?
+    
+    \begin{itemize}
+        \item J48
+        
+        \begin{itemize}[label = $\geq$]
+            \item 70\%
+            
+            \begin{center}
+            \begin{tabular}{lrr}
+                {Accuracy: 72.4\%} &
+                \begin{tabular}{|c|c|}
+                \hline \textit{good} & \textit{bad}  \\
+                \hline 601 & 99\\ 
+                \hline 177 & 123\\ \hline
+                \end{tabular} & \begin{tabular}{|c|c|c|}
+                \hline Clase & Recall & Precision \\
+                \hline \textit{good} & 0.859 & 0.772 \\
+            \hline \textit{bad} & 0.410 & 0.554\\ \hline
+            \end{tabular}\end{tabular}\end{center}
+            
+            \item 50\%
+            
+            \begin{center}
+            \begin{tabular}{lrr}
+                {Accuracy: 73\%}\phantom{.0} &
+                \begin{tabular}{|c|c|}
+                \hline \textit{good} & \textit{bad}  \\
+                \hline 604 & 96\\ 
+                \hline 167 & 133\\ \hline
+                \end{tabular} & \begin{tabular}{|c|c|c|}
+                \hline Clase & Recall & Precision \\
+                \hline \textit{good} & 0.863 & 0.783 \\
+            \hline \textit{bad} & 0.443 & 0.581\\ \hline
+            \end{tabular}\end{tabular}\end{center}
+            
+        Obtenemos resultados algo mejores considerando los atributos que se seleccionan el 50\% de las veces, mejora la matriz de confusión y, por lo tanto, todas las medidas de evaluación del clasificador.
+        \end{itemize}
+            
+        \item NaïveBayes
+            
+            \begin{itemize}[label = $\geq$]
+                \item 70\%
+                
+                \begin{center}
+            \begin{tabular}{lrr}
+                {Accuracy: 75\%}\phantom{.0} &
+                \begin{tabular}{|c|c|}
+                \hline \textit{good} & \textit{bad}  \\
+                \hline 628 & 72\\ 
+                \hline 178 & 122\\ \hline
+                \end{tabular} & \begin{tabular}{|c|c|c|}
+                \hline Clase & Recall & Precision \\
+                \hline \textit{good} & 0.897 & 0.779 \\
+            \hline \textit{bad} & 0.407 & 0.629\\ \hline
+            \end{tabular}\end{tabular}\end{center}
+                
+                \item 50\%
+                
+                \begin{center}
+            \begin{tabular}{lrr}
+                {Accuracy: 74.4\%} &
+                \begin{tabular}{|c|c|}
+                \hline \textit{good} & \textit{bad}  \\
+                \hline 606 & 94\\ 
+                \hline 162 & 138\\ \hline
+                \end{tabular} & \begin{tabular}{|c|c|c|c|}
+                \hline Clase & Recall & Precision \\
+                \hline \textit{good} & 0.866 & 0.789 \\
+            \hline \textit{bad} & 0.460 & 0.595\\ \hline
+            \end{tabular}\end{tabular}\end{center}
+        Si seleccionamos los atributos escogidos al menos un 50\% de las veces, en este caso el clasificador clasifica más instancias como \textit{bad}, con lo que mejora para esa clase, pero empeora clasificando \textit{good}. Como resultado el Accuracy es ligeramente menor.
+            \end{itemize}
+        
+        
+        \item Redes Bayesianas con TAN
+            
+            \begin{itemize}[label = $\geq$]
+                \item 70\% 
+                
+                \begin{center}
+            \begin{tabular}{lcr}
+                {Accuracy: 74.5\%} &
+                \begin{tabular}{|c|c|}
+                \hline \textit{good} & \textit{bad}  \\
+                \hline 604 & 96\\ 
+                \hline 159 & 141\\ \hline
+                \end{tabular} & \begin{tabular}{|c|c|c|}
+                \hline Clase & Recall & Precision \\
+                \hline \textit{good} & 0.863 & 0.792 \\
+            \hline \textit{bad} & 0.470 & 0.595\\ \hline
+            \end{tabular}\end{tabular}\end{center}
+                
+                \item 50\%
+                
+                \begin{center}
+            \begin{tabular}{lcr}
+                {Accuracy: 74.7\%} &
+                \begin{tabular}{|c|c|}
+                \hline \textit{good} & \textit{bad}  \\
+                \hline 607 & 93\\ 
+                \hline 160 & 140\\ \hline
+                \end{tabular} & \begin{tabular}{|c|c|c|}
+                \hline Clase & Recall & Precision \\
+                \hline \textit{good} & 0.867 & 0.791 \\
+            \hline \textit{bad} & 0.467 & 0.601\\ \hline
+            \end{tabular}\end{tabular}\end{center}
+            \end{itemize}
+            
+        Al escoger los datos seleccionados un 50\% de las veces, se clasifica mejor la clase \textit{good}, pero peor la clase \textit{bad}. La diferencia es sutil, tres instancias en el primer caso y una en el segundo, con lo que el Accuracy, aunque es mejor, varía muy poco.
+        \item 5-NN
+            
+            \begin{itemize}[label = $\geq$]
+                \item 70\%
+                
+                \begin{center}
+            \begin{tabular}{lcr}
+                {Accuracy: 76.2\%} &
+                \begin{tabular}{|c|c|}
+                \hline \textit{good} & \textit{bad}  \\
+                \hline 608 & 92\\ 
+                \hline 146 & 154\\ \hline
+                \end{tabular} & \begin{tabular}{|c|c|c|}
+                \hline Clase & Recall & Precision \\
+                \hline \textit{good} & 0.869 & 0.806 \\
+            \hline \textit{bad} & 0.513 & 0.626\\ \hline
+            \end{tabular}\end{tabular}\end{center}
+                
+                \item 50\%
+                
+                \begin{center}
+            \begin{tabular}{lcr}
+                {Accuracy: 73.7\%} &
+                \begin{tabular}{|c|c|}
+                \hline \textit{good} & \textit{bad}  \\
+                \hline 625 & 75\\ 
+                \hline 188 & 112\\ \hline
+                \end{tabular} & \begin{tabular}{|c|c|c|}
+                \hline Clase & Recall & Precision \\
+                \hline \textit{good} & 0.893 & 0.769 \\
+            \hline \textit{bad} & 0.373 & 0.599\\ \hline
+            \end{tabular}\end{tabular}\end{center}
+                
+            \end{itemize}
+            
+        \end{itemize}
+        
+        En el apartado anterior, los atributos fueron seleccionados de la misma manera independientemente del clasificador escogido. En este apartado, todos los clasificadores mejoran su Accuracy, lo que tiene sentido porque el proceso de selección de atributos se ha especializado en el clasificador que se ha usado después.
+    
+    \item En base a lo observado, ¿qué tipo de clasificadores se ven más afectados por la selección de atributos? ¿por qué?
+    
+    El clasificador que se ve más afectado por la selección de atributos es 5-NN porque se basa en una distancia de los datos. Dadas dos instancias, se define una distancia a partir de sus atributos, pero, si eliminamos parte de estos, generalmente la distancia cambia completamente, con lo que también lo hacen los $k$ vecinos más cercanos y el clasificador tiene un comportamiento muy diferente.
+    
+    J48, por el contrario, se ve poco afectado por la selección de atributos porque lleva implementada su propia selección.
+    
+    NaïveBayes supone por hipótesis que los atributos son independientes entre sí dado el valor de la clase, con lo que su clasificación se basará en los atributos que tengan mayor peso en la muestra. Redes bayesianas con TAN es una implementación de NaïveBayes con una búsqueda en un árbol generador de peso máximo. A la hora de seleccionar los atributos, también buscamos los que tienen mayor peso para la clasificación, así que tiene sentido que ambos clasificadores se vean relativamente poco afectados por la selección previa. 
+    
+    \end{enumerate}
+\end{document}
+
+
+
